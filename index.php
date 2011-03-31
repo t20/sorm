@@ -35,7 +35,6 @@ class SormModel
             $model = new $this->model;
             foreach ($this->fields as $field => $value)
             {
-                if ($field != 'model' && $field != 'fields')
                     $model->$field = $tmp[$field];
             }
             $models [] = $model;
@@ -53,7 +52,6 @@ class SormModel
         {
             foreach ($this->fields as $field => $valu)
             {
-                if ($field != 'model' && $field != 'fields')
                     $model->$field = $tmp[$field];
             }
         }
@@ -80,12 +78,31 @@ class SormModel
     
     function insert()
     {
-        
+        $insert_model_query = "INSERT INTO $this->model ";
+        $all_fields = $this->get_set_fields();
+        var_dump($all_fields);
+        $insert_model_query .= "( " .implode(" , " , $all_fields) . " )";
+        $field_values = array();
+        foreach ($all_fields as $f => $v)
+        {
+            $field_values [] = "'". $this->$v . "'";
+        }
+        $insert_model_query .= " VALUES (" . implode(" , " , $field_values) . ")";
+        echo "$insert_model_query";
+        $result = db_query($insert_model_query);
+        return $result;
     }
     
     function delete()
     {
-        
+        $delete_model_query = "DELETE FROM $this->model ";
+        $p = $this->primary_key;
+        $id = $this->$p;
+        $where_clause = " WHERE $this->primary_key = $id";
+        $delete_model_query .= $where_clause;
+        echo "$delete_model_query";
+        $result = db_query($delete_model_query);
+        return $result;
     }
 
     function count()
@@ -135,7 +152,7 @@ class Messages extends SormModel
     public $updated;
     public $mood;
     public $user = null;
-    public $enabled;
+    public $enabled = 1;
 }
 
 class Seminar extends SormModel
@@ -166,13 +183,21 @@ foreach ($messages as $message)
 $test = $test->get(1);
         echo "<hr/>";
 //var_dump($test);
-$test->content = 'new content baby';
+$test->content = 'new content baby22';
 $test->update();
 echo $test->mood;
 
 $sem = new Seminar;
 echo $sem->primary_key;
 
+$newM = new Messages;
+$newM->content = 'testing insert';
+$newM->mood = 'good';
+$newM->insert();
+
+$newM = new Messages;
+$newM = $newM->get(11);
+$newM->delete();
 // $db = new mysqli('localhost', 'barath', 'barath123', 'vallpress');
 
 ?>
