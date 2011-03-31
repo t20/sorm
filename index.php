@@ -62,7 +62,20 @@ class SormModel
     
     function update()
     {
-        
+        $update_model_query = "UPDATE `$this->model` SET ";
+        $where_fields = $this->get_set_fields();
+        $set_clauses = array();
+        foreach ($where_fields as $f => $v)
+        {
+            $set_clauses [] = "`$v` = '" . $this->$v . "'";
+        }
+        $update_model_query .= implode(" , " , $set_clauses);
+        $p = $this->primary_key;
+        $id = $this->$p;
+        $where_clause = " WHERE $this->primary_key = $id";
+        $update_model_query .= $where_clause;
+        $result = db_query($update_model_query);
+        return $result;
     }
     
     function insert()
@@ -153,9 +166,13 @@ foreach ($messages as $message)
 $test = $test->get(1);
         echo "<hr/>";
 //var_dump($test);
+$test->content = 'new content baby';
+$test->update();
 echo $test->mood;
 
 $sem = new Seminar;
 echo $sem->primary_key;
+
+// $db = new mysqli('localhost', 'barath', 'barath123', 'vallpress');
 
 ?>
