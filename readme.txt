@@ -46,54 +46,54 @@ require 'sorm.php';
 
 class Employee extends SormModel
 {
-   public $id;
-   public $firstName;
-   public $lastName;
-   public $department_id;
-   public $salary;
-   public $enabled = 1;
-   public $bonus_percentage = 10;
+    public $id;
+    public $firstName;
+    public $lastName;
+    public $department_id;
+    public $salary;
+    public $enabled = 1;
+    public $bonus_percentage = 10;
 }
 
 1. get($id)
 Fetches an object where primary_key equals id. The primary key is automatically detected from the convention. Example :
 
-$employee = new Employee;
-$employee = $employee->get(20);
-echo $employee->firstName;
-// This returns an employee object with primary key (in this case id) 20
+    $employee = new Employee;
+    $employee = $employee->get(20);
+    echo $employee->firstName;
+    // This returns an employee object with primary key (in this case id) 20
 
 
 2. insert()
 Inserts an instance into the database. Default values from your class are also picked up automatically. Returns the id inserted on success. (False on failure).
 
-$emp = new Employee;
-$emp->firstName = "John";
-$emp->lastName = "somename";
-$emp->department_id = 10;
-$emp->salary = 5000;
-// No need to set enabled and bonus_percentage
-$ret = $emp->insert();
-echo $ret; // should echo auto increment id
+    $emp = new Employee;
+    $emp->firstName = "John";
+    $emp->lastName = "somename";
+    $emp->department_id = 10;
+    $emp->salary = 5000;
+    // No need to set enabled and bonus_percentage
+    $ret = $emp->insert();
+    echo $ret; // should echo auto increment id
 
 
 3. delete()
 Deletes by primary key. returns true if record is deleted. False otherwise.
 
-$emp = new Employee;
-$emp = $emp->get(21);
-$ret = $emp->delete();
+    $emp = new Employee;
+    $emp = $emp->get(21);
+    $ret = $emp->delete();
 
 
 4. update()
 Updates a single record, based on primary key.
 Returns true on success.
 
-$emp = new Employee;
-$emp = $emp->get(21);
-$emp->salary = 6000;
-$ret = $emp->udpate();
-echo $ret; // should return true on success.
+    $emp = new Employee;
+    $emp = $emp->get(21);
+    $emp->salary = 6000;
+    $ret = $emp->udpate();
+    echo $ret; // should return true on success.
 
 
 5. search()
@@ -101,34 +101,40 @@ Also : search($select_fields)
 Set the search params in the model. Call search on the model.
 You may also pass in optional select fields as an array.
 
-$emp = new Employee;
-$emp->department_id = 10; //set search params in the model.
-$emps = $emp->search(); // This should search for all employees with department_id 10
-foreach ($emps as $e)
-{
-    echo "$e->firstName";
-}
-$emp->enabled = 1;
-$emps = $emp->search(); // This should search for all employees with department_id 10 and enabled = 1
-foreach ($emps as $e)
-{
-    echo "$e->firstName";
-}
-// If you want just the first name from the table, you can pass in the select_fields optional param. 
-$emps = $emp->search(array('firstName'))
+    $emp = new Employee;
+    $emp->department_id = 10; //set search params in the model.
+    $emps = $emp->search(); // search for all employees with department_id 10
+    foreach ($emps as $e)
+    {
+        echo "$e->firstName";
+    }
+    
+    $emp->enabled = 1;
+    $emps = $emp->search(); 
+    // search for all employees with department_id 10 and enabled = 1
+    foreach ($emps as $e)
+    {
+        echo "$e->firstName";
+    }
+    
+    // If you want just the first name from the table, 
+    // you can pass in the select_fields optional param. 
+    $emps = $emp->search(array('firstName'))
 
 
 6. count()
 Very similar to search. Set the search params in the model. Call count().
 Returns int value of the query result.
 
-$emp = new Employee;
-$emp->department_id = 10; //set search params in the model.
-$ret = $emp->count(); // This should count of all employees with department_id 10
-echo "Department 10 headcount : $ret";
-$emp->enabled = 1;
-$ret = $emp->count(); // count all employees with department_id 10 and enabled = 1
-echo "Department 10 Enabled headcount : $ret";
+    $emp = new Employee;
+    $emp->department_id = 10; //set search params in the model.
+    $ret = $emp->count(); // count of all employees with department_id 10
+    echo "Department 10 headcount : $ret";
+
+    $emp->enabled = 1;
+    // count all employees with department_id 10 and enabled = 1
+    $ret = $emp->count(); 
+    echo "Department 10 Enabled headcount : $ret";
 
 
 I am currently working on Multiple update and multiple Delete.
