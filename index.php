@@ -1,5 +1,10 @@
 <?php
 
+// For documentation, examples, license please see readme.txt
+// Copyright (C) 2010 by Bharadwaj
+// MIT License
+
+
 class SormModel
 {
     
@@ -17,11 +22,11 @@ class SormModel
         $this->get_primary_key();
     }
     
-    function search($fields='')
+    function search($select_fields='', $is_count=false)
     {
-        $select_model_query = "SELECT * FROM `$this->model`";
+        $select_fields_list = ($select_fields) ? implode(" , " , $select_fields) : ' * ';
+        $select_model_query = "SELECT $select_fields_list FROM `$this->model`";
         $where_fields = $this->get_set_fields();
-        // var_dump($where_fields);
         $where_clauses = array();
         foreach ($where_fields as $f => $v)
         {
@@ -29,11 +34,17 @@ class SormModel
         }
         $select_model_query .= " WHERE " . implode(" AND " , $where_clauses);
         $result = db_query($select_model_query);
+        if ($is_count)
+        {
+            $temp = db_fetch_array($result);
+            return $temp[$select_fields[0]];
+        }
         $models = array();
+        $selected_fields = ($select_fields) ? array_flip($select_fields) : $this->fields;
         while($tmp = db_fetch_array($result)) 
         {
             $model = new $this->model;
-            foreach ($this->fields as $field => $value)
+            foreach ($selected_fields as $field => $value)
             {
                     $model->$field = $tmp[$field];
             }
@@ -73,7 +84,7 @@ class SormModel
         $where_clause = " WHERE $this->primary_key = $id";
         $update_model_query .= $where_clause;
         $result = db_query($update_model_query);
-        return $result;
+        return ($result) ? mysql_affected_rows() : false;
     }
     
     function insert()
@@ -90,7 +101,7 @@ class SormModel
         $insert_model_query .= " VALUES (" . implode(" , " , $field_values) . ")";
         echo "$insert_model_query";
         $result = db_query($insert_model_query);
-        return $result;
+        return ($result) ? mysql_insert_id() : false;
     }
     
     function delete()
@@ -102,12 +113,12 @@ class SormModel
         $delete_model_query .= $where_clause;
         echo "$delete_model_query";
         $result = db_query($delete_model_query);
-        return $result;
+        return ($result) ? mysql_affected_rows() : false;
     }
 
     function count()
     {
-        # code...
+        return $this->search(array('COUNT(*)'), true);
     }
 
     private function get_set_fields()
@@ -115,7 +126,6 @@ class SormModel
         $out = array();
         foreach ($this->fields as $field => $value)
         {
-            if ($field != 'model' && $field != 'fields')
             if($this->$field)
                 $out[] = $field;
         }
@@ -131,21 +141,18 @@ class SormModel
         }
         foreach ($this->fields as $field => $value)
         {
-            if ($field != 'model' && $field != 'fields')
+            if (stristr($field, $this->model . "_id" ) ||
+                stristr($field, $this->model . "id" )
+                )
             {
-                if (stristr($field, $this->model . "_id" ) ||
-                    stristr($field, $this->model . "id" )
-                    )
-                    {
-                        $this->primary_key = $field;
-                        return;
-                    }
+                $this->primary_key = $field;
+                return;
             }
         }
     }
 }
 
-class Messages extends SormModel
+class Message extends SormModel
 {
     public $id;
     public $content;
@@ -167,37 +174,47 @@ class Seminar extends SormModel
 
 require_once 'database.php';
 
-$test = new Messages;
+$test = new Message;
 $test->enabled = 1;
+echo "<br/>Enabled : " .$test->count() ;
 $test->mood = 'great';
+echo "Enabled and great :" . $test->count();
 // if($test->content)
 //     echo "mood set";
 // else
 //     echo "mood not set";
 $messages = $test->search();
+foreach ($messages as $message)
+{
+    echo "<br/>ID: $message->id . Mood : $message->mood Message : $message->content <br/>";
+}
+$messages = $test->search(array('content', 'mood'));
 // var_dump($messages);
 foreach ($messages as $message)
 {
     echo "<br/>Mood : $message->mood Message : $message->content <br/>";
 }
+
 $test = $test->get(1);
         echo "<hr/>";
 //var_dump($test);
-$test->content = 'new content baby22';
-$test->update();
-echo $test->mood;
-
-$sem = new Seminar;
-echo $sem->primary_key;
-
-$newM = new Messages;
-$newM->content = 'testing insert';
+$test->content = 'ntesting update';
+$ret = $test->update();
+echo "<br/>Updated row Changed $ret rows<br/>";
+// 
+// // $sem = new Seminar;
+// // echo $sem->primary_key;
+// 
+$newM = new Message;
+$newM->content = 'testing insert return val';
 $newM->mood = 'good';
-$newM->insert();
+$newid = $newM->insert();
+echo "<br/>Inserted new row with id $newid<br/>";
 
-$newM = new Messages;
-$newM = $newM->get(11);
-$newM->delete();
+$newM = new Message;
+$newM = $newM->get(17);
+$ret = $newM->delete();
+echo "<br/>Delted new row with id $ret<br/>";
 // $db = new mysqli('localhost', 'barath', 'barath123', 'vallpress');
 
 ?>
