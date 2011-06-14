@@ -1,5 +1,20 @@
 <?php
 
+/*
+        This is the Database Abstraction file for the AJAX Driven Chat tutorial.
+        
+        This code was writtin by Ryan Smith of 345 Technical.  This code is
+        based on the database abstraction file from osCommerce (http://oscommerce.com)
+        All code is provided AS-IS.
+        This code is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+        
+        For the rest of the code visit http://www.DynamicAJAX.com
+        
+        Copyright 2005 Ryan Smith / 345 Technical / 345 Group.
+*/
+
 $connected = db_connect();// or die('Unable to connect to database server!');
 
 //You will need to replace the parameters below with the values for your database connection
@@ -7,7 +22,7 @@ $connected = db_connect();// or die('Unable to connect to database server!');
 //username = The user name to connect to the database.
 //password = The password to connect to the database.
 //function db_connect($server = $DB_HOST, $username = $DB_USER, $password = $DB_PASSWORD, $database = $DATABASE, $link = 'db_link') 
-function db_connect($server = 'localhost', $username = 'barath', $password = 'barath123', $database = 'vallpress', $link = 'db_link') {
+function db_connect($server = 'localhost', $username = 'scott', $password = 'tiger', $database = 'testdb', $link = 'db_link') {
 global $$link;
 
 $$link = @mysql_connect($server, $username, $password);
