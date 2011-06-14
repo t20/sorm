@@ -1,5 +1,6 @@
 <?php
 
+// SORM is Simple ORM for PHP
 // For documentation, examples, license please see readme.txt
 /*
 // License: MIT License [http://en.wikipedia.org/wiki/MIT_License]
@@ -112,7 +113,7 @@ class SormModel
     {
         $insert_model_query = "INSERT INTO $this->model ";
         $all_fields = $this->get_set_fields();
-        var_dump($all_fields);
+        //var_dump($all_fields);
         $insert_model_query .= "( " .implode(" , " , $all_fields) . " )";
         $field_values = array();
         foreach ($all_fields as $f => $v)
@@ -137,6 +138,25 @@ class SormModel
         return ($result) ? mysql_affected_rows() : false;
     }
 
+    function updateAll()
+    {
+        #code ...
+    }
+    
+    function deleteAll()
+    {
+        var_dump(get_object_vars($this));
+        $delete_model_query = "DELETE FROM $this->model ";
+        $where_fields = $this->get_set_fields();
+        $where_clauses = array();
+        foreach ($where_fields as $f => $v)
+        {
+            $where_clauses [] = "`$v` = '" . $this->$v . "'";
+        }
+        $delete_model_query .= " WHERE " . implode(" AND " , $where_clauses);
+        echo "$delete_model_query";
+    }
+
     function count()
     {
         return $this->search(array('COUNT(*)'), true);
@@ -147,7 +167,7 @@ class SormModel
         $out = array();
         foreach ($this->fields as $field => $value)
         {
-            if($this->$field)
+            if($this->$field !== null)
                 $out[] = $field;
         }
         return $out;
@@ -171,71 +191,13 @@ class SormModel
             }
         }
     }
+
+    public function __set($name, $value)
+    {
+        echo "Setting '$name' to '$value'\n";
+        //$this->data[$name] = $value;
+    }
+
 }
-
-class Message extends SormModel
-{
-    public $id;
-    public $content;
-    public $updated;
-    public $mood;
-    public $user = null;
-    public $enabled = 1;
-}
-
-class Seminar extends SormModel
-{
-    public $SeminarId;
-    public $title;
-    public $abstract;
-    public $seminar_date;
-    public $speaker;
-    public $speaker_bio;
-}
-
-require_once 'database.php';
-
-$test = new Message;
-$test->enabled = 1;
-echo "<br/>Enabled : " .$test->count() ;
-$test->mood = 'great';
-echo "Enabled and great :" . $test->count();
-// if($test->content)
-//     echo "mood set";
-// else
-//     echo "mood not set";
-$messages = $test->search();
-foreach ($messages as $message)
-{
-    echo "<br/>ID: $message->id . Mood : $message->mood Message : $message->content <br/>";
-}
-$messages = $test->search(array('content', 'mood'));
-// var_dump($messages);
-foreach ($messages as $message)
-{
-    echo "<br/>Mood : $message->mood Message : $message->content <br/>";
-}
-
-$test = $test->get(1);
-        echo "<hr/>";
-//var_dump($test);
-$test->content = 'ntesting update';
-$ret = $test->update();
-echo "<br/>Updated row Changed $ret rows<br/>";
-// 
-// // $sem = new Seminar;
-// // echo $sem->primary_key;
-// 
-$newM = new Message;
-$newM->content = 'testing insert return val';
-$newM->mood = 'good';
-$newid = $newM->insert();
-echo "<br/>Inserted new row with id $newid<br/>";
-
-$newM = new Message;
-$newM = $newM->get(17);
-$ret = $newM->delete();
-echo "<br/>Delted new row with id $ret<br/>";
-// $db = new mysqli('localhost', 'barath', 'barath123', 'vallpress');
 
 ?>
