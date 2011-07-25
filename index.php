@@ -121,7 +121,6 @@ class SormModel
             $field_values [] = "'". $this->$v . "'";
         }
         $insert_model_query .= " VALUES (" . implode(" , " , $field_values) . ")";
-        echo "$insert_model_query";
         $result = db_query($insert_model_query);
         return ($result) ? mysql_insert_id() : false;
     }
@@ -133,7 +132,6 @@ class SormModel
         $id = $this->$p;
         $where_clause = " WHERE $this->primary_key = $id";
         $delete_model_query .= $where_clause;
-        echo "$delete_model_query";
         $result = db_query($delete_model_query);
         return ($result) ? mysql_affected_rows() : false;
     }
@@ -154,7 +152,6 @@ class SormModel
             $where_clauses [] = "`$v` = '" . $this->$v . "'";
         }
         $delete_model_query .= " WHERE " . implode(" AND " , $where_clauses);
-        echo "$delete_model_query";
     }
 
     function count()
@@ -194,7 +191,6 @@ class SormModel
 
     public function __set($name, $value)
     {
-        echo "Setting '$name' to '$value'\n";
         //$this->data[$name] = $value;
     }
 
